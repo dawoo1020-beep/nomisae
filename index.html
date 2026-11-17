@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>노미새 v10</title>
+<title>노미새 v11</title>
 <style>
   html,body{margin:0;height:100%;overflow:hidden;background:#05080a;font-family:"Malgun Gothic",sans-serif;user-select:none;-webkit-user-select:none;touch-action:none}
   canvas{display:block;width:100vw;height:100vh}
@@ -47,7 +47,7 @@
     <button id="startBtn">시작 (Enter)</button><br>
     <button id="picBtn" class="sub">🖼 캐릭터 그림 바꾸기</button>
     <p><b>이동</b> 방향키/WASD · <b>아래 투하</b> 스페이스 · <b>앞으로 발사</b> F/X · <b>궁</b> Q<br>(모바일: 왼쪽 조이스틱 · 오른쪽 💩 / 💩➜ / 궁 버튼)</p>
-    <p style="font-size:12px;color:#777" id="ver">노미새 v10</p>
+    <p style="font-size:12px;color:#777" id="ver">노미새 v11</p>
   </div>
   <div id="picPanel" class="hidden"><div id="picRows"></div>
     <div style="font-size:12px;color:#999;margin-top:4px">폰 갤러리·PC 폴더에서 그림을 고르면 바로 바뀌고, 이 기기에 저장돼요. 배경이 투명한 PNG가 가장 자연스러워요.</div></div>
@@ -61,7 +61,7 @@
     <h3>👹 적</h3>
     🔪 <b>큰재</b>: 칼을 던짐 (가끔 <b>거대 큰재</b>)<br>
     😁 <b>걱종걱</b>: 공중에서 입으로 스마트폰 발사<br>
-    🪖 <b>병장 박혔쥬</b>: 바지를 던짐, 두 대<br>
+    🪖 <b>박혔쥬</b>: 바지를 던짐, 두 대<br>
     🍚 <b>쌀먹</b>: 다리를 늘려 아이템을 가로챔, 닿으면 아픔<br>
     🚙 <b>택형</b>: 빌런을 최대 6명 태워 와서 내려놓고 도망. 차에 닿으면 튕겨나감(데미지 없음)<br>
     🦉 올빼미·푸른얼굴얼간이새: 피하거나 앞으로 쏴서 떨어뜨리기
@@ -70,6 +70,7 @@
     🥤 <b>닥터페퍼 제로</b>: 똥이 빨라짐<br>
     🍺 <b>버드와이저 생맥</b>: 똥이 느려짐<br>
     🍶 <b>느 막걸리</b>: 목숨 +1, 대신 숙취<br>
+    ❤️ <b>하트</b>: 목숨 +1 (숙취 없음)<br>
     🚬 <b>담배</b>: 연기 → 적들이 느려지고 얌전<br>
     🦋 <b>포충망</b>: 적을 한 번에 포획<br>
     <span style="color:#ff6b6b">🍗 <b>쌀먹의 닭가슴살</b></span>: 빨갛게 빛나는 레어템, 거대 노미새
@@ -146,12 +147,12 @@ const sfx={
 // 아이템: 이름(화면 표시) / 효과 설명(HUD)
 const POWERS={beer:'버드와이저 생맥',pepper:'닥터페퍼 제로',fish:'엄의 20kg 방어',cig:'담배',chicken:'쌀먹의 닭가슴살',net:'포충망'};
 const PDESC={beer:'똥이 느려짐',pepper:'똥이 빨라짐',fish:'똥이 커짐',cig:'연기 → 적들이 느려지고 얌전',chicken:'거대 노미새! 닿는 적 다 부숨',net:'잠자리채로 적 포획'};
-const ITEMNAME={...POWERS,makgeolli:'느 막걸리'};
+const ITEMNAME={...POWERS,makgeolli:'느 막걸리',heart:'하트'};
 const PDUR={chicken:6,net:8};
 const SPEED=240,G=1500,HERO_W=190,HERO_CUT=0.3,ULT_NEED=20,LEVEL_SEC=30,FWD_RANGE=720;
 const LINES={start:['나는노미다!','간다아…','무서워…'],drop:['뿌직!','끄으응…','받아라!','뿡~'],hit:['명중!','맛 좀 봐라!','정조준!'],hurt:['으악!','아파!','내 날개!'],
   grin:['웃지 마!','먹어라!'],rice:['아이템 개꿀~','쌀 먹자~','내 꺼다!'],taekIn:['배달 왔다~','자 내려라!','택형 등장!'],taekOut:['ㅂㅂ~','난 간다~','수고~'],riceHit:['아 내 쌀!','억울해…'],tough:['안 쓰러져?!','한 방 더!','단단하네…'],
-  solSpawn:['충성!','명령 수행하겠습니다!','예! 알겠습니다!','병장 박혔쥬, 임무 개시!'],solThrow:['또 바지 내리게 하네!'],
+  solSpawn:['충성!','명령 수행하겠습니다!','예! 알겠습니다!','박혔쥬, 임무 개시!'],solThrow:['또 바지 내리게 하네!'],
   solHit:['명령이니까 참는다!','충성…!','이것도 훈련이다!','예! 괜찮습니다!']};
 const KIND={survivor:{pts:250},soldier:{pts:350}};
 const eSay=(o,s,d=1.6)=>{o.say=typeof s==='string'?s:pick(s);o.sayT=d;};
@@ -172,7 +173,7 @@ const banner=(s)=>{S.banner=s;S.bannerT=2.6;};
 // ===== 스폰 =====
 // 레벨별 등장: 1 큰재 · 2 걱종걱 · 3 박혔쥬 · 4 쌀먹 · 5 택형 · 6 거대 큰재 (새가 나오는 것도 2부터)
 const UNLOCK={grin:2,bird:2,soldier:3,rice:4,car:5,giant:6,tough:4};
-const NAMES={grin:'😁 걱종걱',bird:'🦉 올빼미·얼간이새',soldier:'🪖 병장 박혔쥬',rice:'🍚 쌀먹',car:'🚙 택형',giant:'⚠ 거대 큰재'};
+const NAMES={grin:'😁 걱종걱',bird:'🦉 올빼미·얼간이새',soldier:'🪖 박혔쥬',rice:'🍚 쌀먹',car:'🚙 택형',giant:'⚠ 거대 큰재'};
 const unlocked=k=>S.level>=UNLOCK[k];
 // 레벨이 오를수록 맷집(hp)이 생김: 일반 똥 1, 왕똥(방어) 3
 function spawnSurvivor(){
@@ -203,7 +204,7 @@ function blowCar(c){S.shake=28;S.flash=0.6;score(800,c.x,GROUND-200,1);banner('�
 // 걱종걱 입 위치(그림 기준 아래쪽 1/4)
 const mouthOf=o=>({x:o.x-o.w*0.04,y:o.y+o.w*0.28});
 function spawnBird(){const owl=Math.random()<.5;S.birds.push({type:owl?'owl':'booby',x:W+120,base:rand(90,GROUND-300),y:0,ph:rand(0,6),extra:rand(150,230)+S.level*8});if(owl&&Math.random()<.5)sfx.hoot();}
-function spawnItem(){const r=Math.random(),k=r<0.04?'chicken':r<0.24?'makgeolli':pick(['beer','pepper','fish','cig','net']);S.items.push({type:k,x:W+80,y:rand(110,GROUND-320),ph:0});}
+function spawnItem(){const r=Math.random(),k=r<0.04?'chicken':r<0.16?'heart':r<0.30?'makgeolli':pick(['beer','pepper','fish','cig','net']);S.items.push({type:k,x:W+80,y:rand(110,GROUND-320),ph:0});}
 // kind: knife(큰재) / ball(걱종걱 철구, 포물선) / phone(걱종걱 폰, 빙글빙글)
 function throwKnife(fx,fy,speed=520,kind='knife'){const a=Math.atan2(S.hy-fy,S.hx-fx);
   const lob=kind==='ball'||kind==='pants';
@@ -248,7 +249,7 @@ function start(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)
   reset();running=true;$('startScreen').classList.add('hidden');$('overScreen').classList.add('hidden');say(LINES.start);banner('그들이 다가온다');}
 $('startBtn').onclick=start;$('againBtn').onclick=start;
 // 캐릭터 그림 바꾸기: 기기에서 그림을 골라 줄여서 저장 (폰 갤러리 가능)
-const PICNAMES={hero:'주인공 (노미새)',grin:'걱종걱',soldier:'병장 박혔쥬',rice:'쌀먹',taek:'택형'};
+const PICNAMES={hero:'주인공 (노미새)',grin:'걱종걱',soldier:'박혔쥬',rice:'쌀먹',taek:'택형'};
 function picRows(){$('picRows').innerHTML=Object.keys(PICNAMES).map(n=>`<div class="row"><img id="pv_${n}" src="${IMG[n]&&IMG[n].src||''}"><span>${PICNAMES[n]}</span>
   <label>고르기<input type="file" accept="image/*" data-n="${n}"></label><button class="rb" data-reset="${n}">기본</button></div>`).join('');
   $('picRows').querySelectorAll('input').forEach(inp=>inp.onchange=()=>{const f=inp.files[0];if(f)loadPic(inp.dataset.n,f);});
@@ -363,7 +364,9 @@ function update(dt){
   dt=realDt;
   // 아이템
   S.items=S.items.filter(o=>{o.ph+=dt;o.x-=spd*dt;if(running&&Math.hypot(o.x-S.hx,o.y-S.hy)<100){
-      if(o.type==='makgeolli'){ // 막걸리: 목숨 +1, 대신 숙취로 화면이 어지러움
+      if(o.type==='heart'){ // 하트: 숙취 없이 목숨 +1
+        if(S.lives<5){S.lives++;pop('❤️+1',S.hx,S.hy-90,'#ff6b6b');}else{S.score+=100;pop('+100',S.hx,S.hy-90,'#ffd36b');}sfx.power();say(['하트다!','살았다…','힘이 난다!'][Math.random()*3|0]);}
+      else if(o.type==='makgeolli'){ // 막걸리: 목숨 +1, 대신 숙취로 화면이 어지러움
         if(S.lives<5){S.lives++;pop('❤️+1',S.hx,S.hy-90,'#ff6b6b');}S.drunk=9;sfx.power();say(['캬~ 막걸리!','한 사발 더…','어지러워…'][Math.random()*3|0]);}
       else{S.power=o.type;S.powerT=PDUR[o.type]||7;sfx.power();say(POWERS[o.type]+'!');if(o.type==='chicken'){S.inv=Math.max(S.inv,PDUR.chicken);banner('🍗 쌀먹의 닭가슴살! 거대 노미새!');S.shake=14;}}return false;}return o.x>-100;});
   // 닭가슴살: 거대해진 노미새에 닿는 적·투사체 전부 박살
@@ -433,7 +436,7 @@ function horrorText(txt,x,y,size){ctx.font=`900 ${size}px "Malgun Gothic",sans-s
 function drawItem(o){
   const blink=Math.floor(o.ph*5)%2===0, pulse=0.5+0.5*Math.sin(o.ph*10), y=o.y+Math.sin(o.ph*4)*8, r=58;
   // 노란 깜빡이 테두리
-  const red=o.type==='chicken',C=red?'255,50,50':'255,225,77',hex=red?'#ff3232':'#ffe14d';
+  const red=o.type==='chicken'||o.type==='heart',C=red?'255,50,50':'255,225,77',hex=red?'#ff3232':'#ffe14d';
   ctx.save();ctx.shadowColor=hex;ctx.shadowBlur=blink?(red?45:30):10;
   ctx.strokeStyle=blink?hex:`rgba(${C},0.35)`;ctx.lineWidth=blink?(red?8:6):3;
   ctx.beginPath();ctx.arc(o.x,y,r+pulse*(red?10:4),0,7);ctx.stroke();
@@ -441,7 +444,7 @@ function drawItem(o){
   ctx.save();ctx.font='900 19px "Malgun Gothic",sans-serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.lineWidth=5;ctx.strokeStyle='#000';ctx.fillStyle=red?'#ff8080':'#fff3b0';
   const nm=ITEMNAME[o.type]||'';ctx.strokeText(nm,o.x,y-r-14);ctx.fillText(nm,o.x,y-r-14);ctx.restore();
   // 그림 자체에도 노란 외곽 빛
-  ctx.save();ctx.shadowColor=hex;ctx.shadowBlur=blink?22:6;sprite(o.type,o.x,y,{fish:120,makgeolli:100,cig:90,chicken:95,net:100}[o.type]||72);ctx.restore();
+  ctx.save();ctx.shadowColor=hex;ctx.shadowBlur=blink?22:6;if(o.type==='heart'){ctx.font='64px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('❤️',o.x,y+4);}else sprite(o.type,o.x,y,{fish:120,makgeolli:100,cig:90,chicken:95,net:100}[o.type]||72);ctx.restore();
 }
 const fmtTime=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
 function hpPips(o,x,y){for(let i=0;i<o.maxHp;i++){ctx.fillStyle=i<o.hp?'#ff4d4d':'#3a1010';ctx.strokeStyle='#000';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+(i-(o.maxHp-1)/2)*18,y,6,0,7);ctx.fill();ctx.stroke();}}
@@ -475,7 +478,7 @@ function draw(){
   // 큰재
   S.enemies.forEach(o=>{const h=hOf(o.kind,o.w),bob=Math.abs(Math.sin(o.ph*(o.hit?14:4)))*(o.hit?12:4);
     ctx.save();if(o.hit)ctx.filter='sepia(.6) brightness(.8)';else if(o.fl>0)ctx.filter='brightness(2.2)';sprite(o.kind,o.x,GROUND+6-h/2-bob,o.w,o.vx<0?1:0,o.hit?Math.sin(o.ph*18)*0.07:0);ctx.restore();
-    if(!o.hit&&(o.kind==='soldier'||o.giant)){const nm=o.giant?'거대 큰재':'병장 박혔쥬';ctx.font=`900 ${o.giant?26:18}px "Malgun Gothic",sans-serif`;ctx.textAlign='center';ctx.fillStyle=o.giant?'#ff8a8a':'#d9f2c0';ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.strokeText(nm,o.x,GROUND+32);ctx.fillText(nm,o.x,GROUND+32);}
+    if(!o.hit&&(o.kind==='soldier'||o.giant)){const nm=o.giant?'거대 큰재':'박혔쥬';ctx.font=`900 ${o.giant?26:18}px "Malgun Gothic",sans-serif`;ctx.textAlign='center';ctx.fillStyle=o.giant?'#ff8a8a':'#d9f2c0';ctx.strokeStyle='#000';ctx.lineWidth=4;ctx.strokeText(nm,o.x,GROUND+32);ctx.fillText(nm,o.x,GROUND+32);}
     if(o.sayT>0&&!o.hit)whiteBubble(o.say,o.x,GROUND-h-bob-24);
     if(!o.hit&&o.maxHp>1)hpPips(o,o.x,GROUND-h-bob-8);
     if(o.hit)sprite('poop',o.x,GROUND-h-bob+10,o.w*0.42);});
